@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Porto in 3 giorni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--grass:#c9edA8;--hill:#a9dc86;--river:#62bdfb;--river2:#c2e8ff;--bg:#fffaf0;--ink:#1b2a4e;--mute:#5d6b8f;--blue:#2f5bff;--sun:#ffc83d;--ok:#22b55b;--soft:#e4edff;--line:#cfdcff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--grass:#2d5b46;--hill:#264d3b;--river:#1f55a0;--river2:#4a82d0;--bg:#14204a;--ink:#eaf0ff;--mute:#a4b5de;--blue:#8aa9ff;--soft:#22336b;--line:#2c3f80}}
+:root[data-theme="dark"]{--grass:#2d5b46;--hill:#264d3b;--river:#1f55a0;--river2:#4a82d0;--bg:#14204a;--ink:#eaf0ff;--mute:#a4b5de;--blue:#8aa9ff;--soft:#22336b;--line:#2c3f80}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font:500 16px/1.4 Fredoka,system-ui,sans-serif;overflow:hidden}
+#app{height:100%;display:flex;flex-direction:column}
+.top{padding:10px 14px 8px;background:var(--bg)}
+.row,.row2,.prog{display:flex;align-items:center;gap:10px}
+.row{justify-content:space-between}
+h1{margin:0;font:700 1.7rem Fredoka,sans-serif;letter-spacing:.5px}
+#tabs{display:flex;gap:6px}
+.tab{border:2px solid var(--line);background:var(--soft);color:var(--ink);border-radius:14px;padding:4px 10px;font:700 .85rem Fredoka,sans-serif;cursor:pointer;line-height:1.1}
+.tab small{display:block;font-weight:500;font-size:.66rem;color:var(--mute)}
+.tab[aria-selected=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+.tab[aria-selected=true] small{color:#e3ebff}
+.row2{justify-content:space-between;margin-top:6px}
+h2{margin:0;font:700 1rem Fredoka,sans-serif;min-width:0}
+.btn{flex:none;background:var(--sun);color:#14213d;font-weight:700;border-radius:99px;padding:5px 12px;text-decoration:none;font-size:.8rem}
+.prog{margin-top:6px}
+.bar{flex:1;height:8px;border-radius:99px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+#pt{font-size:.78rem;color:var(--mute)}
+.mapbox{position:relative;flex:1;min-height:0;border-radius:26px 26px 0 0;overflow:hidden;box-shadow:inset 0 0 0 4px var(--bg)}
+#map{width:100%;height:100%;display:block;touch-action:none;cursor:grab;background:var(--grass)}
+#map:active{cursor:grabbing}
+.zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
+.zoom button,.ctl button{width:42px;height:42px;border-radius:50%;border:3px solid var(--blue);background:#fff;color:var(--blue);font:700 1.3rem Fredoka,sans-serif;cursor:pointer;line-height:1}
+.zoom button:focus-visible,.ctl button:focus-visible,.tab:focus-visible,.btn:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.sheet{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 16px 10px;background:var(--bg);border-top:3px dashed var(--line)}
+.sheet h3{margin:0;font:700 1.15rem Fredoka,sans-serif}
+.sheet p{margin:0;color:var(--mute);font-size:.92rem}
+.meta{font-size:.78rem;font-weight:700;color:var(--blue)}
+.tag{display:inline-block;background:var(--sun);color:#14213d;font-weight:700;font-size:.72rem;border-radius:8px;padding:0 8px;margin-top:3px}
+.ph{margin-top:4px;display:none}.ctl{grid-column:2;grid-row:1/4;display:flex;align-items:center;gap:8px}
+.ctl button.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.ctl button:disabled{opacity:.35}
+.hint{grid-column:1/3;text-align:center;font-size:.76rem;margin-top:2px!important}
+.lbl{font:700 14px Fredoka,sans-serif;fill:#1b2a4e;stroke:#fff;stroke-width:4px;paint-order:stroke;stroke-linejoin:round;pointer-events:none}
+.pin{cursor:pointer}
+.pi{transform-origin:0 0;transition:transform .25s}
+.pin.sel .pi{transform:scale(1.25)}
+.ring{fill:none;stroke:var(--sun);stroke-width:5;opacity:0;transform-origin:0 0}
+.pin.sel .ring{opacity:1;animation:pulse 1.3s ease-out infinite}
+.dr{animation:drift 90s linear infinite}
+.boat{animation:sail 60s linear infinite}
+#walker{pointer-events:none}
+@keyframes pulse{from{transform:scale(.9);opacity:1}to{transform:scale(1.7);opacity:0}}
+@keyframes drift{from{transform:translateX(-300px)}to{transform:translateX(1300px)}}
+@keyframes sail{from{transform:translateX(1150px)}to{transform:translateX(-200px)}}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-2px)}}@keyframes leg{from{transform:rotate(-30deg)}to{transform:rotate(30deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="row"><h1>Porto</h1><nav id="tabs" role="tablist"></nav></div>
+    <div class="row2"><h2 id="ttl"></h2><a id="mp" class="btn" target="_blank" rel="noopener">Apri il percorso su Maps</a></div>
+    <div class="prog"><div class="bar"><i id="fill"></i></div><span id="pt"></span></div>
+  </header>
+  <div class="mapbox">
+    <svg id="map" viewBox="0 0 1000 640" role="img" aria-label="Mappa illustrata di Porto"><g id="deco"></g><g id="route"></g><g id="pins"></g><g id="walker"></g></svg>
+    <div class="zoom"><button id="zi" aria-label="Ingrandisci">+</button><button id="zo" aria-label="Riduci">−</button><button id="zf" aria-label="Vedi tutto il giorno">⌂</button></div>
+  </div>
+  <section class="sheet">
+    <div><span class="meta" id="st"></span> <span class="meta" id="sc"></span></div>
+    <div class="ctl"><button id="pv" aria-label="Tappa precedente">‹</button><button id="dn" aria-label="Fatto">✓</button><button id="nx" aria-label="Tappa successiva">›</button></div>
+    <div><h3 id="sh"></h3><p id="sp"></p><span class="tag" id="sg"></span> <a class="btn ph" id="ph" target="_blank" rel="noopener">📷 Foto</a></div>
+    <p class="hint">Tocca una tappa per segnarla come fatta.</p>
+  </section>
+</div>
+<script>
+var G="https://www.google.com/maps/dir/?api=1&travelmode=walking";
+var DAYS=[
+{n:"Giorno 1",s:"Arrivo e tour",title:"Arrivo, tour e tramonto",map:G+"&origin=41.1493855,-8.6071175&waypoints=41.1466469,-8.6115366%7C41.1406471,-8.6111858&destination=41.1399589,-8.6094485",
+pos:[[880,80],[770,190],[610,240],[650,445,[[620,360]]],[520,300,[[620,360]]]],
+items:[
+["10:50","✈️","Atterriamo","uber o metro per arrivare in città"],
+["","🥪","Giriamo un po' e pranzo","guardiamo tik tok per vedere dove"],
+["15:00","🎧","Tour civitatis","3 ore e fa vedere tutta  la città"],
+["","🌇","Tramonto Jardim do Morro",""],
+["","🍝","cena",""]
+]},
+{n:"Giorno 2",s:"Visita",title:"Centro storico, Gaia e Douro",map:G+"&origin=41.1473563,-8.6162729&waypoints=41.1469055,-8.6147746%7C41.1456705,-8.6145977%7C41.145492,-8.609544%7C41.1413772,-8.6156725%7C41.1399589,-8.6094485%7C41.1369369,-8.6091373&destination=41.1380513,-8.625111",
+pos:[[320,130],[400,165],[350,235],[480,200],[440,300],[620,360],[650,445],[250,490],[390,365]],
+items:[
+["","⛪","Igreja do Carmo","Facciata di azulejos blu e bianchi e la Casa Escondida, la casa stretta tra le due chiese."],
+["","📚","Livraria Lello","libreria famosa si entra prenotando"],
+["","🗼","Torre dos Clérigos"," 225 gradini con panorama sulla città"],
+["","🚉","Stazione São Bento"," hall è tutta decorata."],
+["","🏛️","Palácio da Bolsa","Si visita solo con la guida"],
+["","🌉","Ponte Luís I","Attraversiamo a piedi sul ponte superiore."],
+["","🚠","Jardim do Morro e funivia di Gaia","Vista sul fiume, funivia per scendere"],
+["","🍷","Graham's Port Lodge","??"],
+["","⛴️","Traghetto sul fiume al tramonto","prenotare con get yout guide"]
+]},
+{n:"Giorno 3",s:"Ultimo giorno",title:"Last",map:G+"&origin=41.1482682,-8.6255165&destination=41.1588467,-8.630737",
+pos:[[110,240],[230,90],[470,250],[880,80]],
+items:[
+["","🦚","Jardins do Palácio de Cristal","Giardini con pavoni e una bella vista sul fiume."],
+["","🎼","Casa da Música","Architettura moderna."],
+["","🥘","Pranzo e ultimo giro con souvenir"],
+["","🛫","Il nostro volo","Ciao ciao"]
+]}];
+var NS="http://www.w3.org/2000/svg",$=function(i){return document.getElementById(i)};
+var PH={"Igreja do Carmo":"Igreja do Carmo Porto","Livraria Lello":"Livraria Lello Porto","Torre dos Clérigos":"Torre dos Clérigos Porto","Stazione São Bento":"Estação de São Bento Porto","Palácio da Bolsa":"Palácio da Bolsa Porto","Ponte Luís I":"Ponte Luís I Porto","Jardim do Morro e funivia di Gaia":"Jardim do Morro Gaia","Tramonto Jardim do Morro":"Jardim do Morro Porto tramonto","Graham's Port Lodge":"Graham's Port Lodge Porto","Traghetto sul fiume al tramonto":"Douro river cruise Porto","Jardins do Palácio de Cristal":"Jardins do Palácio de Cristal Porto","Casa da Música":"Casa da Música Porto"};
+var svg=$("map"),cur=0,sel=0,store={};
+try{store=JSON.parse(localStorage.getItem("porto")||"{}")}catch(e){}
+function save(){try{localStorage.setItem("porto",JSON.stringify(store))}catch(e){}}
+function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+var RM=false;
+
+/* ---------- scenografia ---------- */
+var RV=[[-600,318],[250,332],[400,356],[620,360],[900,385],[1600,382]];
+function ry(x){for(var i=1;i<RV.length;i++){if(x<=RV[i][0]){var a=RV[i-1],b=RV[i];return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])}}return 382}
+function deco(){
+  var g=$("deco"),s=7;function r(){s=(s*16807)%2147483647;return s/2147483647}
+  el("path",{d:"M-600,318 C-100,322 250,332 400,356 S560,362 620,360 S900,385 1600,382",fill:"none",stroke:"var(--river)","stroke-width":92,"stroke-linecap":"round"},g);
+  el("path",{d:"M-600,318 C-100,322 250,332 400,356 S560,362 620,360 S900,385 1600,382",fill:"none",stroke:"var(--river2)","stroke-width":82,"stroke-opacity":.35},g);
+  el("path",{d:"M-600,300 C-100,304 250,314 400,338 S560,344 620,342 S900,367 1600,364",fill:"none",stroke:"#fff","stroke-width":3,"stroke-dasharray":"16 30","stroke-opacity":.6},g);
+  el("path",{d:"M-600,338 C-100,342 250,352 400,376 S560,382 620,380 S900,405 1600,402",fill:"none",stroke:"#fff","stroke-width":3,"stroke-dasharray":"10 36","stroke-opacity":.5},g);
+  var stops=[];DAYS.forEach(function(d){d.pos.forEach(function(p){stops.push(p)})});
+  for(var i=0;i<4;i++)el("ellipse",{cx:100+i*280+r()*60,cy:i%2?560:60,rx:150,ry:70,fill:"var(--hill)"},g);
+  var cols=["#ff9aa2","#ffd37a","#9ad4ff","#c3a6ff","#ffb48f","#8fe3c0"],n=0,tries=0;
+  while(n<85&&tries<900){tries++;var x=-100+r()*1200,y=-40+r()*720;
+    if(Math.abs(y-ry(x))<62)continue;
+    if(stops.some(function(p){return Math.hypot(p[0]-x,p[1]-y)<52}))continue;
+    n++;var h=el("g",{transform:"translate("+x.toFixed(0)+","+y.toFixed(0)+")"},g);
+    if(r()<.4){el("rect",{x:-2,y:2,width:4,height:9,fill:"#8a5a3b"},h);el("circle",{cx:0,cy:-3,r:9+r()*4,fill:"#4fb36a"},h);el("circle",{cx:-3,cy:-6,r:4,fill:"#7ad08c"},h)}
+    else{var c=cols[Math.floor(r()*6)];el("rect",{x:-11,y:-6,width:22,height:16,rx:2,fill:c,stroke:"#fff","stroke-width":2},h);
+      el("path",{d:"M-14,-5 L0,-17 L14,-5Z",fill:"#d9534f",stroke:"#fff","stroke-width":2,"stroke-linejoin":"round"},h);el("rect",{x:-3,y:3,width:6,height:7,rx:1,fill:"#fff8"},h)}}
+  var b=el("g",{},g);
+  el("line",{x1:620,y1:314,x2:620,y2:406,stroke:"#fff","stroke-width":30,"stroke-linecap":"round"},b);
+  el("line",{x1:620,y1:314,x2:620,y2:406,stroke:"#e0a05a","stroke-width":20,"stroke-linecap":"round"},b);
+  el("line",{x1:620,y1:318,x2:620,y2:402,stroke:"#fff","stroke-width":3,"stroke-dasharray":"6 8"},b);
+  for(var k=0;k<3;k++){var o=el("g",{transform:"translate(0,"+(50+k*200)+")"},g),q=el("g",{"class":"dr",style:"animation-delay:-"+(k*31)+"s"},o);
+    [[0,0,34,16],[-26,6,24,12],[28,7,26,12]].forEach(function(e){el("ellipse",{cx:e[0],cy:e[1],rx:e[2],ry:e[3],fill:"#fff","fill-opacity":.85},q)})}
+  var o2=el("g",{transform:"translate(0,372)"},g),bt=el("g",{"class":"boat"},o2);
+  el("path",{d:"M-22,0 L22,0 L14,12 L-14,12Z",fill:"#ff6b6b",stroke:"#fff","stroke-width":2,"stroke-linejoin":"round"},bt);
+  el("path",{d:"M0,-26 L0,-2 L18,-2Z",fill:"#fff"},bt);
+}
+
+/* ---------- camera ---------- */
+var cam={cx:500,cy:320,w:1000},tg={x:500,y:320,w:1000},W={x:0,y:0},anim=null,raf=0,follow=true;
+function asp(){var r=svg.getBoundingClientRect();return r.height/Math.max(1,r.width)}
+function apply(){var h=cam.w*asp();svg.setAttribute("viewBox",(cam.cx-cam.w/2)+" "+(cam.cy-h/2)+" "+cam.w+" "+h)}
+function ease(p){var a=.08;if(p<a)return p*p/(2*a*(1-a));if(p>1-a)return 1-(1-p)*(1-p)/(2*a*(1-a));return (p-a/2)/(1-a)}
+function frame(now){
+  if(anim){var p=anim.d?Math.min(1,(now-anim.s)/anim.d):1,t=ease(p)*anim.len,i=0;W.ph=t/20*Math.PI;W.amp=Math.min(1,p/.1,(1-p)/.1);
+    while(i<anim.seg.length-1&&t>anim.seg[i]){t-=anim.seg[i];i++}
+    var a=anim.pts[i],b=anim.pts[Math.min(i+1,anim.pts.length-1)],l=anim.seg[i]||1,f=clamp(t/l,0,1);
+    W.x=a[0]+(b[0]-a[0])*f;W.y=a[1]+(b[1]-a[1])*f;W.fl=b[0]<a[0]?-1:1;
+    if(follow){tg.x=W.x;tg.y=W.y}
+    if(p>=1){anim=null;W.amp=0;tg.x=W.x;tg.y=W.y}}
+  var k=RM?1:.12;cam.cx+=(tg.x-cam.cx)*k;cam.cy+=(tg.y-cam.cy)*k;cam.w+=(tg.w-cam.w)*k;
+  apply();drawW();
+  raf=(anim||Math.abs(tg.x-cam.cx)>.5||Math.abs(tg.y-cam.cy)>.5||Math.abs(tg.w-cam.w)>.5)?requestAnimationFrame(frame):0}
+function kick(){if(!raf)raf=requestAnimationFrame(frame)}
+function fit(){var d=DAYS[cur],xs=d.pts.map(function(p){return p[0]}),ys=d.pts.map(function(p){return p[1]});
+  var x0=Math.min.apply(0,xs),x1=Math.max.apply(0,xs),y0=Math.min.apply(0,ys),y1=Math.max.apply(0,ys),a=asp();
+  tg.x=(x0+x1)/2;tg.y=(y0+y1)/2;tg.w=clamp(Math.max(x1-x0+240,(y1-y0+280)/a),480,1500);kick()}
+var WG,WF,LM={},BD;
+function pose(){var a=W.amp||0,ph=W.ph||0,s=Math.sin(ph),c=Math.cos(ph),t1=28*a*s,t2=-t1,dy=-3*a*Math.abs(c);
+  function R(n,ang,k,d){var o=LM[n];if(!o)return;o[0].setAttribute("transform","translate(0,"+(d||0).toFixed(2)+") rotate("+(-ang).toFixed(1)+",0,"+o[2]+")");if(o[1])o[1].setAttribute("transform","rotate("+k.toFixed(1)+",0,"+o[3]+")")}
+  R("lg l1",t1,42*a*Math.max(0,c),0);R("lg l2",t2,42*a*Math.max(0,-c),0);R("ar a1",-t1*.9,0,dy);R("ar a2",-t2*.9,0,dy);
+  BD.setAttribute("transform","translate(0,"+dy.toFixed(2)+") rotate("+(4*a).toFixed(1)+",0,-18)")}
+function drawW(){if(!WG)return;WG.setAttribute("transform","translate("+(W.x+26).toFixed(1)+","+(W.y+22).toFixed(1)+") scale(1.5)");pose();
+  WF.setAttribute("transform","scale("+(W.fl||1)+",1)")}
+
+/* ---------- giorno ---------- */
+function build(){
+  var d=DAYS[cur];d.pts=[];d.idx=[];
+  d.pos.forEach(function(p){(p[2]||[]).forEach(function(v){d.pts.push(v)});d.idx.push(d.pts.length);d.pts.push([p[0],p[1]])});
+  var rt=$("route");rt.innerHTML="";var pl=d.pts.map(function(p){return p.join(",")}).join(" ");
+  el("polyline",{points:pl,fill:"none",stroke:"#fff","stroke-width":13,"stroke-linecap":"round","stroke-linejoin":"round","stroke-opacity":.85},rt);
+  el("polyline",{points:pl,fill:"none",stroke:"var(--blue)","stroke-width":5,"stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":"2 12"},rt);
+  var pg=$("pins");pg.innerHTML="";
+  d.items.forEach(function(it,i){
+    var g=el("g",{"class":"pin","data-i":i,transform:"translate("+d.pos[i][0]+","+d.pos[i][1]+")"},pg),pi=el("g",{"class":"pi"},g);
+    el("circle",{"class":"ring",r:28},g);
+    el("circle",{r:25,cy:4,fill:"#0003"},pi);el("circle",{"class":"pc",r:24,fill:"#fff",stroke:"var(--blue)","stroke-width":5},pi);
+    var e=el("text",{"class":"em","text-anchor":"middle",y:9,"font-size":24},pi);e.textContent=it[1];
+    el("circle",{cx:18,cy:-18,r:10,fill:"var(--sun)",stroke:"#fff","stroke-width":2},pi);
+    var nb=el("text",{"text-anchor":"middle",x:18,y:-14,"font-size":12,"font-weight":700,fill:"#14213d","font-family":"Fredoka,sans-serif"},pi);nb.textContent=i+1;
+    var ws=it[2].split(" "),ln=[""];ws.forEach(function(w){var l=ln[ln.length-1];if(l&&(l+" "+w).length>15)ln.push(w);else ln[ln.length-1]=l?l+" "+w:w});
+    var tx=el("text",{"class":"lbl","text-anchor":"middle",y:46},g);
+    ln.forEach(function(l,k){var ts=el("tspan",{x:0,dy:k?15:0},tx);ts.textContent=l.trim()});
+  });
+  var wk=$("walker");wk.innerHTML="";WG=el("g",{},wk);WF=el("g",{},WG);
+  function LN(p,y0,y1,c,w){return el("line",{x1:0,y1:y0,x2:0,y2:y1,stroke:c,"stroke-width":w,"stroke-linecap":"round"},p)}
+  function LIMB(cl,y0,y1,c,shoe){var g=el("g",{"data-c":cl},WF);
+    if(shoe){var k=-11,s=el("g",{},g);LN(g,y0,k,"#14213d",7);LN(g,y0,k,c,3.6);LN(s,k,y1,"#14213d",7);LN(s,k,y1,c,3.6);el("ellipse",{cx:3,cy:-2,rx:6,ry:3.4,fill:"#ff6b6b",stroke:"#14213d","stroke-width":1.5},s);LM[cl]=[g,s,y0,k]}
+    else{LN(g,y0,y1,"#14213d",7);LN(g,y0,y1,c,3.6);LM[cl]=[g,null,y0,y0]}}
+  el("ellipse",{cx:0,cy:1,rx:14,ry:4,fill:"#0003"},WF);
+  LIMB("lg l2",-18,-4,"#4b5f9e",1);LIMB("ar a2",-33,-21,"#ffd9b3");
+  var bd=el("g",{"class":"bd"},WF),SK={stroke:"#14213d","stroke-width":1.8};BD=bd;
+  el("rect",{x:-14,y:-36,width:9,height:16,rx:3,fill:"#ffc83d",stroke:SK.stroke,"stroke-width":1.8},bd);
+  el("rect",{x:-8,y:-37,width:16,height:20,rx:7,fill:"#2f5bff",stroke:SK.stroke,"stroke-width":1.8},bd);
+  LIMB("lg l1",-18,-4,"#6f86d6",1);LIMB("ar a1",-33,-21,"#ffd9b3");
+  el("circle",{cx:0,cy:-47,r:10,fill:"#ffd9b3",stroke:SK.stroke,"stroke-width":1.8},bd);
+  el("path",{d:"M-10,-48 A10,10 0 0 1 10,-48 Z",fill:"#5a3a22",stroke:SK.stroke,"stroke-width":1.8,"stroke-linejoin":"round"},bd);
+  el("circle",{cx:4,cy:-45,r:1.8,fill:"#14213d"},bd);
+  el("path",{d:"M2,-41 Q5,-38 8,-41",fill:"none",stroke:"#14213d","stroke-width":1.4,"stroke-linecap":"round"},bd);
+  
+  tabs();
+  $("ttl").textContent=d.title;$("mp").href=d.map;
+  sel=0;W.x=d.pts[d.idx[0]][0];W.y=d.pts[d.idx[0]][1];W.fl=1;anim=null;follow=true;
+  upd();fit();
+}
+function tabs(){
+  var t=$("tabs");t.innerHTML="";
+  DAYS.forEach(function(d,i){var b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");b.setAttribute("aria-selected",i===cur);
+    b.appendChild(document.createTextNode(d.n));var s=document.createElement("small");s.textContent=d.s;b.appendChild(s);
+    b.onclick=function(){if(cur!==i){cur=i;build()}};t.appendChild(b)})}
+function upd(){
+  var d=DAYS[cur],it=d.items[sel],n=0;
+  d.items.forEach(function(_,i){var on=store[cur+"-"+i];if(on)n++;
+    var g=svg.querySelector('.pin[data-i="'+i+'"]');g.classList.toggle("sel",i===sel);
+    g.querySelector(".pc").setAttribute("fill",on?"var(--ok)":"#fff");g.querySelector(".pc").setAttribute("stroke",on?"var(--ok)":"var(--blue)");
+    var e=g.querySelector(".em");e.textContent=on?"✓":d.items[i][1];e.setAttribute("fill",on?"#fff":"#000")});
+  $("st").textContent=it[0];$("sc").textContent=(sel+1)+" / "+d.items.length;
+  $("sh").textContent=it[2];var q=PH[it[2]];$("ph").style.display=q?"inline-block":"none";if(q)$("ph").href="https://www.google.com/search?tbm=isch&q="+encodeURIComponent(q);$("sp").textContent=it[3]||"";$("sg").textContent=it[4]||"";$("sg").style.display=it[4]?"inline-block":"none";
+  $("dn").classList.toggle("on",!!store[cur+"-"+sel]);$("pv").disabled=sel===0;$("nx").disabled=sel===d.items.length-1;
+  $("fill").style.width=(n/d.items.length*100)+"%";$("pt").textContent=n+" tappe su "+d.items.length+" fatte";
+}
+function go(i){
+  var d=DAYS[cur],a=d.idx[sel],b=d.idx[i];if(i===sel)return;
+  var pts=d.pts.slice(Math.min(a,b),Math.max(a,b)+1);if(a>b)pts.reverse();
+  var seg=[],len=0;for(var k=0;k<pts.length-1;k++){var l=Math.hypot(pts[k+1][0]-pts[k][0],pts[k+1][1]-pts[k][1]);seg.push(l);len+=l}
+  anim={pts:pts,seg:seg,len:len,s:performance.now(),d:RM?0:clamp(len/26*1000,3500,14000)};follow=true;
+  tg.w=clamp(Math.min(cam.w,560),380,560);sel=i;upd();kick();
+}
+function toggle(i){var k=cur+"-"+i;store[k]=!store[k];save();upd()}
+$("pv").onclick=function(){if(sel>0)go(sel-1)};
+$("nx").onclick=function(){if(sel<DAYS[cur].items.length-1)go(sel+1)};
+$("dn").onclick=function(){toggle(sel)};
+function zoom(f){tg.w=clamp(tg.w*f,260,1500);follow=false;kick()}
+$("zi").onclick=function(){zoom(.7)};$("zo").onclick=function(){zoom(1.4)};$("zf").onclick=function(){fit()};
+
+/* ---------- trascinare e pizzicare ---------- */
+var ptr={},moved=false,pinch=0,start=null;
+svg.addEventListener("pointerdown",function(e){ptr[e.pointerId]={x:e.clientX,y:e.clientY};start={x:e.clientX,y:e.clientY,cx:cam.cx,cy:cam.cy};moved=false;
+  var ids=Object.keys(ptr);if(ids.length===2){var a=ptr[ids[0]],b=ptr[ids[1]];pinch=Math.hypot(a.x-b.x,a.y-b.y)}});
+svg.addEventListener("pointermove",function(e){
+  if(!ptr[e.pointerId])return;ptr[e.pointerId]={x:e.clientX,y:e.clientY};var ids=Object.keys(ptr),r=svg.getBoundingClientRect();
+  if(ids.length===2){var a=ptr[ids[0]],b=ptr[ids[1]],dd=Math.hypot(a.x-b.x,a.y-b.y);if(pinch){cam.w=tg.w=clamp(cam.w*pinch/dd,260,1500);apply()}pinch=dd;moved=true;return}
+  var dx=e.clientX-start.x,dy=e.clientY-start.y;
+  if(!moved&&Math.hypot(dx,dy)<6)return;
+  if(!moved){try{svg.setPointerCapture(e.pointerId)}catch(x){}}
+  moved=true;follow=false;var k=cam.w/r.width;
+  cam.cx=tg.x=clamp(start.cx-dx*k,-100,1100);cam.cy=tg.y=clamp(start.cy-dy*k,-60,700);apply()});
+function up(e){delete ptr[e.pointerId];pinch=0;if(Object.keys(ptr).length===1){var id=Object.keys(ptr)[0];start={x:ptr[id].x,y:ptr[id].y,cx:cam.cx,cy:cam.cy}}}
+svg.addEventListener("pointerup",up);svg.addEventListener("pointercancel",up);
+svg.addEventListener("wheel",function(e){e.preventDefault();cam.w=tg.w=clamp(cam.w*Math.exp(e.deltaY*.0012),260,1500);apply()},{passive:false});
+svg.addEventListener("click",function(e){if(moved)return;var g=e.target.closest(".pin");if(!g)return;var i=+g.getAttribute("data-i");if(i===sel)toggle(i);else go(i)});
+window.addEventListener("resize",function(){apply()});
+deco();build();
+</script>
+</body>
+</html>
